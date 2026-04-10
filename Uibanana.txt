@@ -18,7 +18,7 @@ local T1UIColor = {
 	["Click Effect Color"] = Color3.fromRGB(0, 170, 255), -- Xanh nước biển
 	["Setting Icon Color"] = Color3.fromRGB(0, 170, 255),
 	
-	["Logo Image"] = "rbxassetid://127804177964032",
+	["Logo Image"] = "rbxassetid://139657327253109",
 	
 	["Search Icon Color"] = Color3.fromRGB(230, 230, 230),
 	["Search Icon Highlight Color"] = Color3.fromRGB(0, 170, 255),
