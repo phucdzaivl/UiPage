@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            border: 1px solid #333;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #333;
+        }
+        .header h1 { color: #00ff88; font-size: 24px; }
+        .header h1 span { color: #fff; font-weight: normal; font-size: 16px; }
+        .back-btn {
+            color: #666;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .back-btn:hover { color: #fff; border-color: #555; }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #0a0a0a;
+            color: #fff;
+            font-size: 16px;
+            min-width: 200px;
+        }
+        .input-group input:focus { outline: none; border-color: #00ff88; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-primary { background: #00ff88; color: #000; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,255,136,0.2); }
+        .btn-danger { background: #ff4444; color: #fff; }
+        .btn-danger:hover { transform: translateY(-2px); }
+        .btn-secondary { background: #333; color: #fff; }
+        .btn-secondary:hover { background: #444; }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+        .key-list {
+            background: #0a0a0a;
+            border-radius: 10px;
+            border: 1px solid #222;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .key-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            border-bottom: 1px solid #1a1a1a;
+            color: #ccc;
+            font-family: 'Courier New', monospace;
+        }
+        .key-item .key-text { color: #00ff88; }
+        .key-item .key-actions { display: flex; gap: 8px; }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-box {
+            background: #0a0a0a;
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 1px solid #222;
+            flex: 1;
+            text-align: center;
+            min-width: 100px;
+        }
+        .stat-box .number { color: #00ff88; font-size: 24px; font-weight: bold; }
+        .stat-box .label { color: #666; font-size: 12px; margin-top: 4px; }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0,0,0,0.95);
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 12px;
+            z-index: 999;
+            opacity: 0;
+            transition: all 0.5s;
+            border: 1px solid #333;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: #00ff88; }
+        .toast.error { border-color: #ff4444; }
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .login-box {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .login-box h2 { color: #00ff88; margin-bottom: 10px; }
+        .login-box input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #0a0a0a;
+            color: #fff;
+            font-size: 16px;
+            margin: 15px 0;
+        }
+        .login-box input:focus { outline: none; border-color: #00ff88; }
+        .login-box .btn { width: 100%; justify-content: center; }
+        .login-error { color: #ff4444; display: none; margin-bottom: 15px; }
+        @media (max-width: 480px) {
+            .container { padding: 20px; }
+            .input-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MÀN HÌNH ĐĂNG NHẬP -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <h2>🔐 Admin Login</h2>
+            <p style="color:#666;margin-bottom:15px;">Nhập mật khẩu để quản lý key</p>
+            <div class="login-error" id="loginError">❌ Sai mật khẩu!</div>
+            <input type="password" id="passwordInput" placeholder="Nhập mật khẩu..." />
+            <button class="btn btn-primary" onclick="checkPassword()">🔓 Đăng nhập</button>
+        </div>
+    </div>
+
+    <!-- NỘI DUNG ADMIN -->
+    <div class="container" id="adminContent" style="display:none;">
+        <div class="header">
+            <h1>⚙️ Admin <span>| Key Manager</span></h1>
+            <a href="https://phucdzaivl.github.io/keyredeem/" class="back-btn">← Về trang chính</a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box"><div class="number" id="totalKeys">0</div><div class="label">Tổng số key</div></div>
+            <div class="stat-box"><div class="number" id="validKeys">0</div><div class="label">Key hợp lệ</div></div>
+        </div>
+
+        <div style="margin-bottom:30px;">
+            <h3 style="color:#aaa;font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:15px;">📝 Tạo key mới</h3>
+            <div class="input-group">
+                <input type="text" id="keyInput" placeholder="Nhập key (VD: KEYREDEEEM-ABC12)" />
+                <button class="btn btn-primary" onclick="addKey()">➕ Thêm key</button>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm" onclick="generateRandomKey()">🎲 Tạo ngẫu nhiên</button>
+                <button class="btn btn-secondary btn-sm" onclick="generateMultipleKeys()">📦 Tạo 5 key</button>
+            </div>
+            <p style="color:#444;font-size:12px;margin-top:10px;">Định dạng: <strong style="color:#666;">KEYREDEEEM-XXXXX</strong></p>
+        </div>
+
+        <div>
+            <h3 style="color:#aaa;font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:15px;">📋 Danh sách key</h3>
+            <div class="key-list" id="keyList"><div class="empty-msg" style="color:#444;text-align:center;padding:30px;">Chưa có key nào</div></div>
+            <div style="margin-top:15px;display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-danger btn-sm" onclick="clearAllKeys()">🗑️ Xóa tất cả</button>
+                <button class="btn btn-secondary btn-sm" onclick="refreshList()">🔄 Làm mới</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ===== MẬT KHẨU =====
+        const ADMIN_PASSWORD = 'admin123'; // ĐỔI MẬT KHẨU Ở ĐÂY!
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('loginError');
+            if (input.value.trim() === ADMIN_PASSWORD) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                initAdmin();
+            } else {
+                error.style.display = 'block';
+                input.value = '';
+                setTimeout(() => error.style.display = 'none', 3000);
+            }
+        }
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+
+        // ===== QUẢN LÝ KEY =====
+        function getKeyList() {
+            try {
+                const data = localStorage.getItem('keyList');
+                return data ? JSON.parse(data) : [];
+            } catch { return []; }
+        }
+
+        function saveKeyList(keys) {
+            localStorage.setItem('keyList', JSON.stringify(keys));
+            updateStats();
+            renderList();
+        }
+
+        function generateKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < 5; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return 'KEYREDEEEM-' + result;
+        }
+
+        function isValidFormat(key) {
+            return /^KEYREDEEEM-[A-Z0-9]{5}$/.test(key);
+        }
+
+        // ===== UI =====
+        function renderList() {
+            const keys = getKeyList();
+            const container = document.getElementById('keyList');
+            if (keys.length === 0) {
+                container.innerHTML = '<div class="empty-msg" style="color:#444;text-align:center;padding:30px;">📭 Chưa có key nào</div>';
+                return;
+            }
+            container.innerHTML = keys.map((key, index) => `
+                <div class="key-item">
+                    <div><span style="color:#444;font-size:12px;margin-right:10px;">#${index+1}</span><span class="key-text">${key}</span></div>
+                    <div class="key-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="copyKey('${key}')">📋</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteKey('${key}')">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            const keys = getKeyList();
+            document.getElementById('totalKeys').textContent = keys.length;
+            document.getElementById('validKeys').textContent = keys.filter(k => isValidFormat(k)).length;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // ===== ACTIONS =====
+        function addKey() {
+            const input = document.getElementById('keyInput');
+            const key = input.value.trim().toUpperCase();
+            if (!key) { showToast('❌ Vui lòng nhập key!', 'error'); return; }
+            if (!isValidFormat(key)) { showToast('❌ Định dạng không hợp lệ!', 'error'); return; }
+            const keys = getKeyList();
+            if (keys.includes(key)) { showToast('⚠️ Key đã tồn tại!', 'error'); return; }
+            keys.push(key);
+            saveKeyList(keys);
+            input.value = '';
+            showToast('✅ Đã thêm key: ' + key, 'success');
+        }
+
+        function generateRandomKey() {
+            const key = generateKey();
+            document.getElementById('keyInput').value = key;
+            showToast('🎲 Đã tạo: ' + key, 'success');
+        }
+
+        function generateMultipleKeys() {
+            const keys = getKeyList();
+            let added = 0;
+            for (let i = 0; i < 5; i++) {
+                const newKey = generateKey();
+                if (!keys.includes(newKey)) { keys.push(newKey); added++; }
+            }
+            if (added > 0) { saveKeyList(keys); showToast(`✅ Đã thêm ${added} key mới`, 'success'); }
+            else showToast('⚠️ Không có key mới để thêm', 'error');
+        }
+
+        function deleteKey(key) {
+            if (!confirm(`Xóa key: ${key}?`)) return;
+            let keys = getKeyList();
+            keys = keys.filter(k => k !== key);
+            saveKeyList(keys);
+            showToast('🗑️ Đã xóa key', 'success');
+        }
+
+        function clearAllKeys() {
+            if (!confirm('⚠️ Xóa TẤT CẢ key?')) return;
+            saveKeyList([]);
+            showToast('🗑️ Đã xóa tất cả key', 'success');
+        }
+
+        function copyKey(key) {
+            navigator.clipboard.writeText(key)
+                .then(() => showToast('✅ Đã copy: ' + key, 'success'))
+                .catch(() => showToast('❌ Copy thất bại', 'error'));
+        }
+
+        function refreshList() { renderList(); updateStats(); showToast('🔄 Đã làm mới', 'success'); }
+
+        // ===== INIT =====
+        function initAdmin() {
+            const keys = getKeyList();
+            if (keys.length === 0) {
+                saveKeyList(['KEYREDEEEM-ADMIN', 'KEYREDEEEM-DEMO1', 'KEYREDEEEM-DEMO2', generateKey(), generateKey()]);
+            }
+            renderList();
+            updateStats();
+            document.getElementById('keyInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addKey();
+            });
+        }
+
+        window.addEventListener('load', () => document.getElementById('passwordInput').focus());
+    </script>
+</body>
+</html>
