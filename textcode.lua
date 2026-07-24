@@ -23,7 +23,31 @@ TweenSpeed = 350
 getgenv().currentTween = nil
 getgenv().SimulationSet = false
 HealthM = 0  -- <--- THÊM DÒNG NÀY
-ABmethod = "Select Player"  -- <--- THÊM DÒNG NÀY
+ABmethod = "Select Player"  
+
+-- FIX 1.1: Khai báo các biến còn thiếu
+PosMon = nil
+SelectMaterial = ""
+MMon = {}
+MPos = CFrame.new(0, 0, 0)
+SP = "Default"
+KenTest = false
+SwordName = ""
+Root = nil
+hopDelay = 1  -- Mặc định 1 giây
+SetSpeedBoat = 300  -- Mặc định 300
+stopboat = nil
+buyb = nil
+tween = nil
+getgenv().BringMode = "250"
+getgenv().BringModeSpeed = 250
+InfAbility = false
+IslandESP = false
+DevilFruitESP = false
+ESPPlayer = false
+Berry = false
+RandomCFrame = false
+Check = 0
 
 -- FIX 2: Thêm hàm GetDistance
 function GetDistance(cf)
@@ -39,6 +63,7 @@ function getTrophies(index)
         {true, -720},
         {true, -720},
         {true, -720},
+        {true, -180},
         {true, -180},
         {true, -180}
     }
@@ -1213,7 +1238,7 @@ function CheckNearestTeleporter(aI)
     local min = math.huge
     local min2 = math.huge
     local y = game.PlaceId
-    local isTempleTarget = tostring(aI.Position) == "28286, 14897, 103"
+    local isTempleTarget = (aI.Position - Vector3.new(28286, 14897, 103)).Magnitude < 1
     if isTempleTarget then
         local mapStash = game:GetService("ReplicatedStorage"):WaitForChild("MapStash")
         local temple = mapStash:FindFirstChild("Temple of Time")
@@ -3512,31 +3537,11 @@ Setting:AddDropdown({
     Default = "250",
     Callback = function(Value)
         getgenv().BringMode = Value
+        getgenv().BringModeSpeed = tonumber(Value) or 250  -- <-- THÊM DÒNG NÀY
     end
 })
-spawn(function()
-    while wait() do
-        if getgenv().BringMode then
-            pcall(function()
-                if getgenv().BringMode == "50" then
-                    getgenv().BringMode = 50
-                elseif getgenv().BringMode == "100" then
-                    getgenv().BringMode = 100
-                elseif getgenv().BringMode == "150" then
-                    getgenv().BringMode = 150
-                elseif getgenv().BringMode == "200" then
-                    getgenv().BringMode = 200
-                elseif getgenv().BringMode == "250" then
-                    getgenv().BringMode = 250
-                elseif getgenv().BringMode == "300" then
-                    getgenv().BringMode = 300
-                elseif getgenv().BringMode == "350" then
-                    getgenv().BringMode = 350
-                end
-            end)
-        end
-    end
-end)
+
+-- XÓA TOÀN BỘ spawn function phía dưới (không cần nữa)
 Setting:AddToggle({
     Name = "Auto Anti - Admin Join Server",
     Description = "Please Do Not Turn Off To Avoid Errors",
